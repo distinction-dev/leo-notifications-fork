@@ -1,0 +1,396 @@
+{
+  "openapi": "3.1.0",
+  "servers": [
+    {
+      "url": "http://y9yle5ib40.execute-api.us-west-2.amazonaws.com/dev"
+    }
+  ],
+  "info": {
+    "title": "Leo Notification Service",
+    "version": "1.0.0",
+    "description": "Rest Api for creating and getting user notifications"
+  },
+  "tags": [
+    {
+      "name": "Notifications",
+      "description": "Collection of endpoints containing notification"
+    }
+  ],
+  "paths": {
+    "/{accountId}/notification/": {
+      "post": {
+        "tags": [
+          "Notifications"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "accountId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "leopb",
+                "smartleads"
+              ]
+            },
+            "description": "The accountId for which you are connecting to this api"
+          }
+        ],
+        "operationId": "sendUserNotification",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "headers": {
+                    "type": "object",
+                    "properties": {
+                      "accountId": {
+                        "type": "string",
+                        "enum": [
+                          "leopb",
+                          "smartleads"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "accountId"
+                    ]
+                  },
+                  "body": {
+                    "type": "object",
+                    "properties": {
+                      "userIds": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "content": {
+                        "type": "object",
+                        "properties": {
+                          "en": {
+                            "type": "object",
+                            "properties": {
+                              "title": {
+                                "type": "string"
+                              },
+                              "text": {
+                                "type": "string"
+                              }
+                            },
+                            "additionalProperties": false,
+                            "required": [
+                              "title",
+                              "text"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "en"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "priority": {
+                        "type": "string",
+                        "enum": [
+                          "highest",
+                          "high",
+                          "medium",
+                          "low"
+                        ]
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "error",
+                          "warning",
+                          "success",
+                          "info"
+                        ]
+                      },
+                      "context": {
+                        "anyOf": [
+                          {
+                            "title": "Export Data",
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "export"
+                                ]
+                              },
+                              "data": {
+                                "type": "object",
+                                "properties": {
+                                  "exportId": {
+                                    "type": "string"
+                                  },
+                                  "reasonForFailure": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "exportId",
+                                  "reasonForFailure"
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "additionalProperties": false,
+                            "required": [
+                              "type",
+                              "data"
+                            ]
+                          },
+                          {
+                            "title": "Authorization Lost",
+                            "type": "object",
+                            "properties": {
+                              "type": {
+                                "type": "string",
+                                "enum": [
+                                  "authorization-lost"
+                                ]
+                              },
+                              "data": {
+                                "type": "object",
+                                "properties": {
+                                  "inboxName": {
+                                    "type": "string"
+                                  },
+                                  "accountName": {
+                                    "type": "string"
+                                  },
+                                  "appUrl": {
+                                    "type": "string"
+                                  }
+                                },
+                                "additionalProperties": false,
+                                "required": [
+                                  "appUrl",
+                                  "accountName",
+                                  "inboxName"
+                                ]
+                              }
+                            },
+                            "additionalProperties": false,
+                            "required": [
+                              "type",
+                              "data"
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "userIds",
+                      "content"
+                    ]
+                  }
+                },
+                "required": [
+                  "body",
+                  "headers"
+                ],
+                "additionalProperties": true
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Notification saved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Notifications"
+        ],
+        "operationId": "getUserNotifications",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "accountId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "leopb",
+                "smartleads"
+              ]
+            },
+            "description": "The accountId for which you are connecting to this api"
+          },
+          {
+            "in": "query",
+            "name": "lastKey",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The id of the last notification that was received"
+          },
+          {
+            "in": "query",
+            "name": "size",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "number",
+                  "maximum": 25,
+                  "default": 1
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "The id of the last notification that was received"
+          }
+        ],
+        "responses": {},
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Notifications"
+        ],
+        "operationId": "markAllAsViewed",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "accountId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "leopb",
+                "smartleads"
+              ]
+            },
+            "description": "The accountId for which you are connecting to this api"
+          }
+        ],
+        "description": ">Marks all the notifications of the current user as read. The accountId is read from the path. The user ID will be read from the authentication header",
+        "responses": {
+          "202": {
+            "description": "Successfully marked all notifications as read for this user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    },
+    "/{accountId}/notification/{id}": {
+      "put": {
+        "description": ">This endpoint uses the id of an individual notification and changes the is viewed status of that endpoint.",
+        "tags": [
+          "Notifications"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "accountId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "leopb",
+                "smartleads"
+              ]
+            },
+            "description": "The accountId for which you are connecting to this api"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "The id of the notification that you want to update",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "operationId": "toggleStatus",
+        "responses": {
+          "200": {
+            "description": "Notification Updated Successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "Bearer": {
+        "type": "http",
+        "scheme": "Bearer",
+        "bearerFormat": "JWT",
+        "description": "The Frontegg token, this will help resolve to the User Object"
+      }
+    }
+  }
+}
