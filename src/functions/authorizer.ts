@@ -8,6 +8,7 @@ import {
   Verifier,
 } from "@distinction-dev/lambda-authorizer-utils";
 import { pick } from "serverless-schema";
+import { UserInfoModel } from "@lib/models";
 
 let leoVerifier: Verifier<LeoClaims> | null = null;
 
@@ -45,6 +46,13 @@ export async function handler(
       } else {
         claims = leoVerifier.getParsedToken(event.headers.Authorization);
       }
+      // Make sure that this user gets inserted into the database
+      const user = new UserInfoModel({
+        sub: claims.sub,
+        groupId: claims.tenantId,
+        accountId: "leopb",
+      });
+      await user.save();
       const response = AuthorizerResponse.fromMethodArn(
         "apigateway.amazonaws.com",
         event.methodArn,
@@ -52,14 +60,20 @@ export async function handler(
         {
           ...pick<
             LeoClaims,
-            "sub" | "email" | "name" | "email_verified" | "profilePictureUrl"
+            | "sub"
+            | "email"
+            | "name"
+            | "email_verified"
+            | "profilePictureUrl"
+            | "tenantId"
           >(
             claims,
             "sub",
             "email",
             "name",
             "email_verified",
-            "profilePictureUrl"
+            "profilePictureUrl",
+            "tenantId"
           ),
         }
       );
