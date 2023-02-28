@@ -6,6 +6,8 @@ import { Item } from "dynamoose/dist/Item";
 import { FromSchema } from "json-schema-to-ts";
 import { OpenAPIV3 } from "openapi-types";
 
+export type AllowedAccounts = "leopb" | "smartleads";
+
 export interface Notification {
   id: string;
   content: {
@@ -20,7 +22,7 @@ export interface Notification {
    * This is the id of the app
    * An app is like an account that can be matched to a billing account
    */
-  accountId: "leopb" | "smartleads";
+  accountId: AllowedAccounts;
   /**
    * This items tracks whether an individual notification has been viewed or not
    */
@@ -69,7 +71,7 @@ export class NotificationItem extends Item implements Notification {
    * This is the id of the app
    * An app is like an account that can be matched to a billing account
    */
-  accountId: "leopb" | "smartleads";
+  accountId: AllowedAccounts;
   /**
    * This items tracks whether an individual notification has been viewed or not
    */
@@ -199,6 +201,37 @@ export const NotificationModel = dynamoose.model<NotificationItem>(
   NotificationSchema
 );
 
+export interface UserInfo {
+  sub: string;
+  groupId: string;
+  accountId: AllowedAccounts;
+}
+
+export class UserInfoItem extends Item implements UserInfo {
+  sub: string;
+  groupId: string;
+  accountId: AllowedAccounts;
+}
+
+export const UserInfoSchema = new dynamoose.Schema({
+  sub: {
+    type: String,
+    required: true,
+  },
+  groupId: {
+    type: String,
+    required: true,
+  },
+  accountId: {
+    type: String,
+    enum: ["leopb", "smartleads"],
+  },
+});
+
+export const UserInfoModel = dynamoose.model<UserInfoItem>(
+  env.USERS_TABLE,
+  UserInfoSchema
+);
 /**
  * @type {JSONSchema}
  */

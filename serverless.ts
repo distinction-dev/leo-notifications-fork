@@ -32,6 +32,7 @@ const serviceConfiguration: ServerlessFrameworkConfiguration = {
     environment: {
       ...env,
       NOTIFICATIONS_TABLE: "Leo-Notifications-${env:ENVIRONMENT_NAME}",
+      USER_TABLE: "Leo-Notifications-Users-${env:ENVIRONMENT_NAME}",
     },
     iamRoleStatements: [
       new Dynamodb()
